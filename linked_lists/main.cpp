@@ -1,9 +1,9 @@
 #include <iostream>
 
-class LinkedList{
+class LinkedList {
     struct LinkedListNode {
         int _data{-1};
-        LinkedListNode* _next {nullptr};
+        LinkedListNode *_next{nullptr};
     };
 
     LinkedListNode* _start {nullptr};
@@ -12,184 +12,188 @@ class LinkedList{
 public:
     virtual ~LinkedList() {
         auto node = _start;
-
-        while (node != nullptr) {
-            auto temp = node;
-            node = node->_next;
-            delete temp;
-        }
+    }
+    [[nodiscard]] size_t size() const {
+        return _size;
     }
 
-    [[nodiscard]] size_t size() const { return _size; }
-
     void add(int data) {
-        // create a new node for the chain
+        //create a new node for the chain.
         auto new_node = new LinkedListNode();
         new_node->_data = data;
 
-        // is this the first node of the chain?
+        //is this the first node in the chain?
         if (_start == nullptr) {
-            // it is the first!
-            // link it to the start pointer
+            //it is the first node in the chain, add a new node and link to start pointer.
             _start = new_node;
         } else {
-            // not the first
+            //not the first node.
 
-            // look for the end of the chain
+            //find the end of the chain
             auto node = _start;
-            auto prev = (LinkedListNode*) nullptr;
+            auto prev = (LinkedListNode*)nullptr;
 
             while (node != nullptr) {
                 prev = node;
-                node= node->_next;
+                node = node->_next;
             }
 
-            // attach new node to the end of the chain
-            if (prev != nullptr) {
-                prev->_next = new_node;
-            }
+            //attach the new node to the end of the chain
+            prev->_next = new_node;
         }
-        // increase the number of total nodes
+
+        //increase the number of total nodes
         _size++;
     }
 
-    /// inserts a node in an existing chain
-    /// \param data the data to insert
-    /// \param index the location to insert to
+    //inserts a node in an existing chain at the specified index. \param shows what inserting in function.
+    /// \param data - the data to be inserted into the new node.
+    /// \param index - the index of the new node.
+
     void insert(int data, int index) {
 
-        if (index > _size) throw std::invalid_argument("invalid index");
+        //check for invalid index
+        if(index > _size) throw std::invalid_argument("index out of range");
 
-        // if inserting at the end of the chain, send to the 'add' function
+        //if inserting at the end, just add a new node.
         if (index == _size) return add(data);
 
-        // create the new node
+        //create the new node
         auto node = new LinkedListNode();
         node->_data = data;
 
-        // find the position to insert the node
+        //find the position to insert the node.
         auto curr = _start;
-        auto prev = (LinkedListNode*) nullptr;
+        auto prev = (LinkedListNode*)nullptr;
 
-        for (auto i = 0; ((curr != nullptr) && (i < index)); ++i) {
+        for (auto i = 0; curr != nullptr && i < index; ++i) {
             prev = curr;
             curr = curr->_next;
         }
 
-        // insert the node
+        //insert the node.
         if (prev == nullptr) {
-            // inserting at the start of the chain
+            //inserting at the start of the chain.
             node->_next = _start;
             _start = node;
         } else {
-            // inserting somewhere else in the chain
+            //inserting in the middle or end of the chain.
             node->_next = prev->_next;
             prev->_next = node;
         }
-        // increase the total number of nodes
+        //increase the total number of nodes
         _size++;
     }
 
-    /// delete a node in the chain
+    /// Delete a node in the chain
     /// \param data delete the node with data as its value
+
     void remove(int data) {
 
         auto node = _start;
-        auto prev = (LinkedListNode*) nullptr;
+        auto prev = (LinkedListNode*)nullptr;
 
-        // find the node to delete
+        //find the node to delete
         while (node != nullptr && node->_data != data) {
             prev = node;
             node = node->_next;
         }
 
-        // did I find the node to delete?
+        //did I find the node to delete?
         if (node != nullptr) {
-            // we found it!
+            //we found it!
 
             // am I deleting the first node?
             if (prev == nullptr) {
-                // yes I am!
+                //delete the first node
                 _start = node->_next;
             } else {
-                // nope. it's a node in the middle
+                //delete a node in the middle or end of the chain.
                 prev->_next = node->_next;
             }
 
             delete node;
+            //decrease the total number of nodes
             _size--;
         }
+
     }
 
     friend std::ostream& operator<<(std::ostream& output, LinkedList& list);
 };
 
-std::ostream &operator<<(std::ostream &output, LinkedList &list) {
+std::ostream& operator<<(std::ostream& output, LinkedList& list) {
     auto node = list._start;
 
     while (node != nullptr) {
         std::cout << node->_data << " ";
         node = node->_next;
     }
+
     return output;
 }
+
+
 
 int main() {
 
     auto list = LinkedList();
 
-    // test 1 - add some numbers to the linked list
+    // Test 1 - Add some numbers to the linked list
     list.add(1);
     list.add(2);
     list.add(3);
     list.add(4);
     list.add(5);
 
-    std::cout << "Test 1 - adding nodes" << std::endl;
-    std::cout << "---------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    // Test 2 - Print out the list
+    std::cout << "Test 1 - Adding Nodes" << std::endl;
+    std::cout << "=====================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 2 - insert node at the start of an existing chain
+    //test 2 - insert node at the start of an existing chain.
     list.insert(0, 0);
 
-    std::cout << "Test 2 - insert node at the start" << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 2 - Inserting Nodes" << std::endl;
+    std::cout << "========================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 3 - insert node in the middle of an existing chain
+    //test 3 - insert a node in the middle of an existing chain.
     list.insert(6, 1);
 
-    std::cout << "Test 3 - insert node in the middle" << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 3 - Insert Node(s) in the middle!" << std::endl;
+    std::cout << "========================================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 4 - insert node at the end of an existing chain
+    //test 4 - insert a node at the end of a chain.
     list.insert(7, 7);
 
-    std::cout << "Test 4 - insert node at the end" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 4 - Insert Node(s) at the end" << std::endl;
+    std::cout << "====================================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 5 - delete node at the start of the chain
-    list.remove(0); // remove the first zero in the chain
+    //test 5 - Delete a node in the linked list.
+    list.remove(0); //remove the first zero in the chain.
 
-    std::cout << "Test 5 - delete the first node" << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 5 - delete the first node" << std::endl;
+    std::cout << "================================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 6 - delete node in the middle of the chain
+    //test 6 - Delete a node in the middle of the chain.
     list.remove(3);
 
-    std::cout << "Test 6 - delete a middle node" << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 6 - delete a middle node" << std::endl;
+    std::cout << "===============================" << std::endl;
+    std::cout << list << std::endl;
 
-    // test 7 - delete node at the end of the chain
+    //test 7 - Delete a node at the end of the chain
     list.remove(7);
 
-    std::cout << "Test 7 - delete end node" << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << list << std::endl << std::endl;
+    std::cout << "\nTest 7 - delete end node" << std::endl;
+    std::cout << "==========================" << std::endl;
+    std::cout << list << std::endl;
+
+
 
     return 0;
 }
